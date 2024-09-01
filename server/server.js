@@ -4,7 +4,9 @@ const cors = require('cors');
 require('dotenv').config(); // Для зберігання конфіденційних даних
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: '*', // Вкажіть свої налаштування для безпечного доступу
+}));
 app.use(express.json());
 
 // Підключення до MongoDB Atlas
