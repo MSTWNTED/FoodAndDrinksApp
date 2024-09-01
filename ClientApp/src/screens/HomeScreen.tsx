@@ -18,7 +18,7 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://<your-server-ip>:5000/api/recipes')
+    axios.get('https://foodanddrinksapp.onrender.com/api/recipes')
       .then(response => {
         setRecipes(response.data);
         setLoading(false);

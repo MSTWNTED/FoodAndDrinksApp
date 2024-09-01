@@ -29,7 +29,7 @@ const RecipeListScreen: React.FC<Props> = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        axios.get('http://localhost:3000/api/recipes')
+        axios.get('https://foodanddrinksapp.onrender.com/api/recipes')
             .then(response => {
                 setRecipes(response.data);
                 setLoading(false);

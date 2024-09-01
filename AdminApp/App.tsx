@@ -1,8 +1,13 @@
 import React from 'react';
-import AdminNavigator from './src/navigation/AdminNavigator';
+import { NavigationContainer } from '@react-navigation/native';
+import AdminNavigator from './src/navigation/AdminNavigator'; // Залежно від шляху до твоїх навігаторів
 
 const App = () => {
-    return <AdminNavigator />;
+  return (
+    <NavigationContainer>
+      <AdminNavigator />
+    </NavigationContainer>
+  );
 };
 
 export default App;

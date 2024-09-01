@@ -32,7 +32,7 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route }) => {
 
   React.useEffect(() => {
     if (recipeId) {
-      axios.get(`http://localhost:3000/api/recipes/${recipeId}`)
+      axios.get(`https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`)
         .then(response => {
           setRecipe(response.data);
           setLoading(false);
