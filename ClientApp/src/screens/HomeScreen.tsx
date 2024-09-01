@@ -1,59 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, ActivityIndicator } from 'react-native';
-import axios from 'axios';
+import React from 'react';
+import { View, StyleSheet, Button } from 'react-native';
 
-interface Recipe {
-  _id: string;
-  name: string;
-  cuisine: string;
-  ingredients: string[];
-  instructions: string;
-  imageUrl: string;
-  type: 'food' | 'drink';
-}
-
-const HomeScreen = () => {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    axios.get('https://foodanddrinksapp.onrender.com/api/recipes')
-      .then(response => {
-        setRecipes(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error(error);
-        setLoading(false);
-      });
-  }, []);
-
-  const filteredRecipes = recipes.filter(recipe =>
-    recipe.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
+const HomeScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search Recipes"
-        value={search}
-        onChangeText={setSearch}
+      <Button
+        title="Food"
+        onPress={() => navigation.navigate('CountrySelection', { type: 'food' })}
       />
-      <FlatList
-        data={filteredRecipes}
-        keyExtractor={item => item._id}
-        renderItem={({ item }) => (
-          <View style={styles.recipeCard}>
-            <Text style={styles.recipeName}>{item.name}</Text>
-            <Text>{item.cuisine}</Text>
-          </View>
-        )}
+      <Button
+        title="Drink"
+        onPress={() => navigation.navigate('CountrySelection', { type: 'drink' })}
       />
     </View>
   );
@@ -62,23 +19,8 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
     padding: 20,
-  },
-  searchBar: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  recipeCard: {
-    padding: 20,
-    marginBottom: 10,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-  },
-  recipeName: {
-    fontWeight: 'bold',
   },
 });
 
