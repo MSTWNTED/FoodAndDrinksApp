@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
-// Визначення типів для навігатора
 type RootStackParamList = {
   RecipeDetail: { recipe: Recipe };
 };
@@ -16,7 +15,7 @@ interface Recipe {
   cuisine: string;
   ingredients: string[];
   instructions: string;
-  imageUrl: string;
+  imageUrl: string;  // URL до зображення рецепту
 }
 
 interface RecipeDetailProps {
@@ -33,6 +32,14 @@ const RecipeDetailScreen: React.FC<RecipeDetailProps> = ({ route }) => {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{recipe.name}</Text>
       <Text style={styles.subtitle}>{recipe.cuisine}</Text>
+      
+      {/* Додаємо зображення рецепту */}
+      <Image 
+        source={{ uri: recipe.imageUrl }} 
+        style={styles.image} 
+        resizeMode="cover" 
+      />
+      
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ingredients</Text>
         <TouchableOpacity onPress={() => setShowIngredients(!showIngredients)}>
@@ -72,11 +79,18 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#777',
   },
   subtitle: {
     fontSize: 18,
     color: '#777',
     marginBottom: 20,
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    marginBottom: 20,
+    borderRadius: 10,
   },
   section: {
     marginBottom: 20,
@@ -85,6 +99,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#777',
   },
   content: {
     paddingLeft: 10,
@@ -92,6 +107,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     marginBottom: 5,
+    color: '#777',
   },
   toggleButton: {
     fontSize: 16,

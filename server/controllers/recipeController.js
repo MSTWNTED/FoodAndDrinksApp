@@ -14,7 +14,20 @@ exports.createRecipe = async (req, res) => {
 // Отримання всіх рецептів
 exports.getRecipes = async (req, res) => {
     try {
-        const recipes = await Recipe.find();
+        const { type, country } = req.query;
+        let query = {};
+
+        // Додаємо фільтрацію за типом, якщо параметр переданий
+        if (type) {
+            query.type = type;
+        }
+
+        // Додаємо фільтрацію за країною, якщо параметр переданий
+        if (country) {
+            query.cuisine = country;
+        }
+
+        const recipes = await Recipe.find(query);
         res.json(recipes);
     } catch (err) {
         res.status(500).json({ error: err.message });

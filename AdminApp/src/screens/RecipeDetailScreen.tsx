@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Button, ActivityIndicator, Alert, Picker } from 'react-native';
+import { View, StyleSheet, TextInput, Button, ActivityIndicator, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import axios from 'axios';
@@ -52,13 +52,11 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
   }, [recipeId]);
 
   const handleSave = () => {
-    // Перевіряємо, що всі необхідні поля заповнені
     if (!recipe.name || !recipe.cuisine || !recipe.ingredients || !recipe.instructions || !recipe.type) {
       Alert.alert('Error', 'Please fill out all required fields');
       return;
     }
 
-    // Оновлюємо інгредієнти до масиву, якщо це рядок
     const updatedRecipe = {
       ...recipe,
       ingredients: typeof recipe.ingredients === 'string'
@@ -66,13 +64,10 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
         : recipe.ingredients,  // Якщо інгредієнти вже масив, залишаємо як є
     };
 
-    // Видаляємо _id при створенні нового рецепту
     if (!recipeId) {
-      // Не включаємо _id при створенні нового рецепту
       delete updatedRecipe._id;
     }
 
-    // Відправляємо запит на сервер
     if (recipeId) {
       axios.put(`https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`, updatedRecipe)
         .then(_response => {
@@ -107,30 +102,35 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
         value={recipe.name}
         onChangeText={(text) => setRecipe({ ...recipe, name: text })}
         placeholder="Recipe Name"
+        placeholderTextColor="#888"  // Темніший колір для заповнювача
       />
       <TextInput
         style={styles.input}
         value={recipe.cuisine}
         onChangeText={(text) => setRecipe({ ...recipe, cuisine: text })}
         placeholder="Cuisine"
+        placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={Array.isArray(recipe.ingredients) ? recipe.ingredients.join(', ') : recipe.ingredients}
         onChangeText={(text) => setRecipe({ ...recipe, ingredients: text })}
         placeholder="Ingredients"
+        placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.instructions}
         onChangeText={(text) => setRecipe({ ...recipe, instructions: text })}
         placeholder="Instructions"
+        placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.imageUrl}
         onChangeText={(text) => setRecipe({ ...recipe, imageUrl: text })}
         placeholder="Image URL"
+        placeholderTextColor="#888"
       />
       <RNPicker
         selectedValue={recipe.type}
@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
+    color: '#000',  // Темний колір тексту
   },
   picker: {
     height: 50,

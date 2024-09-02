@@ -32,7 +32,7 @@ const RecipeListScreen = ({ route, navigation }: any) => {
         renderItem={({ item }) => (
           <View style={styles.recipeCard}>
             <Text style={styles.recipeName}>{item.name}</Text>
-            <Text>{item.cuisine}</Text>
+            <Text style={styles.cuisineName}>{item.cuisine}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('RecipeDetail', { recipe: item })}>
               <Text style={styles.viewDetails}>View Details</Text>
             </TouchableOpacity>
@@ -56,6 +56,10 @@ const styles = StyleSheet.create({
   },
   recipeName: {
     fontWeight: 'bold',
+    color: '#777',
+  },
+  cuisineName: {
+    color: '#777',
   },
   viewDetails: {
     color: 'blue',
