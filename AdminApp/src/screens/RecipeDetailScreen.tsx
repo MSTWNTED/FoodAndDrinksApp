@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Button, ActivityIndicator, Alert } from 'react-native';
+import { View, StyleSheet, TextInput, Button, ActivityIndicator, Alert, FlatList, TouchableOpacity, Text } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import axios from 'axios';
 import { Picker as RNPicker } from '@react-native-picker/picker';
+import Autocomplete from 'react-native-autocomplete-input';
 
 type AdminStackParamList = {
   RecipeList: undefined;
@@ -18,18 +19,24 @@ export type RecipeDetailScreenProps = {
   navigation: RecipeDetailScreenNavigationProp;
 };
 
+const continents = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Australia', 'Antarctica'];
+
 const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigation }) => {
   const { recipeId } = route.params;
   const [recipe, setRecipe] = React.useState({
     _id: '',
     name: '',
+    continent: 'Europe',  // Значення за замовчуванням
     cuisine: '',
-    ingredients: '',  // Ініціалізуємо як рядок
+    ingredients: '',
     instructions: '',
+    description: '',
     imageUrl: '',
-    type: 'food' as 'food' | 'drink',  // Додаємо тип рецепту
+    type: 'food' as 'food' | 'drink',
   });
   const [loading, setLoading] = React.useState(!!recipeId);
+  const [countries, setCountries] = React.useState<string[]>([]);
+  const [query, setQuery] = React.useState('');
 
   React.useEffect(() => {
     if (recipeId) {
@@ -39,8 +46,8 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
           setRecipe({
             ...fetchedRecipe,
             ingredients: Array.isArray(fetchedRecipe.ingredients)
-              ? fetchedRecipe.ingredients.join(', ')  // Перетворюємо масив у рядок для відображення
-              : fetchedRecipe.ingredients || '', // Якщо це рядок або undefined
+              ? fetchedRecipe.ingredients.join(', ')
+              : fetchedRecipe.ingredients || '',
           });
           setLoading(false);
         })
@@ -51,8 +58,18 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
     }
   }, [recipeId]);
 
+  React.useEffect(() => {
+    axios.get('https://foodanddrinksapp.onrender.com/api/recipes/cuisines')
+      .then(response => {
+        setCountries(response.data);
+      })
+      .catch(_error => {
+        Alert.alert('Error', 'Failed to fetch countries');
+      });
+  }, []);
+
   const handleSave = () => {
-    if (!recipe.name || !recipe.cuisine || !recipe.ingredients || !recipe.instructions || !recipe.type) {
+    if (!recipe.name || !recipe.continent || !recipe.cuisine || !recipe.ingredients || !recipe.instructions || !recipe.type || !recipe.imageUrl) {
       Alert.alert('Error', 'Please fill out all required fields');
       return;
     }
@@ -61,35 +78,31 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
       ...recipe,
       ingredients: typeof recipe.ingredients === 'string'
         ? recipe.ingredients.split(',').map(ingredient => ingredient.trim())
-        : recipe.ingredients,  // Якщо інгредієнти вже масив, залишаємо як є
+        : recipe.ingredients,
     };
 
     if (!recipeId) {
       delete updatedRecipe._id;
     }
 
-    if (recipeId) {
-      axios.put(`https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`, updatedRecipe)
-        .then(_response => {
-          Alert.alert('Success', 'Recipe updated successfully');
-          navigation.navigate('RecipeList');
-        })
-        .catch(error => {
-          console.error('Failed to update recipe:', error.response?.data || error.message);
-          Alert.alert('Error', 'Failed to update recipe');
-        });
-    } else {
-      axios.post('https://foodanddrinksapp.onrender.com/api/recipes', updatedRecipe)
-        .then(_response => {
-          Alert.alert('Success', 'Recipe added successfully');
-          navigation.navigate('RecipeList');
-        })
-        .catch(error => {
-          console.error('Failed to add recipe:', error.response?.data || error.message);
-          Alert.alert('Error', 'Failed to add recipe');
-        });
-    }
+    const apiCall = recipeId
+      ? axios.put(`https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`, updatedRecipe)
+      : axios.post('https://foodanddrinksapp.onrender.com/api/recipes', updatedRecipe);
+
+    apiCall
+      .then(_response => {
+        Alert.alert('Success', `Recipe ${recipeId ? 'updated' : 'added'} successfully`);
+        navigation.navigate('RecipeList');
+      })
+      .catch(error => {
+        console.error(`Failed to ${recipeId ? 'update' : 'add'} recipe:`, error.response?.data || error.message);
+        Alert.alert('Error', `Failed to ${recipeId ? 'update' : 'add'} recipe`);
+      });
   };
+
+  const filteredCountries = query === ''
+    ? []
+    : countries.filter(country => country.toLowerCase().includes(query.toLowerCase()));
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -102,14 +115,32 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
         value={recipe.name}
         onChangeText={(text) => setRecipe({ ...recipe, name: text })}
         placeholder="Recipe Name"
-        placeholderTextColor="#888"  // Темніший колір для заповнювача
-      />
-      <TextInput
-        style={styles.input}
-        value={recipe.cuisine}
-        onChangeText={(text) => setRecipe({ ...recipe, cuisine: text })}
-        placeholder="Cuisine"
         placeholderTextColor="#888"
+      />
+      <RNPicker
+        selectedValue={recipe.continent}
+        style={styles.picker}
+        onValueChange={(itemValue) => setRecipe({ ...recipe, continent: itemValue })}
+      >
+        {continents.map(continent => (
+          <RNPicker.Item key={continent} label={continent} value={continent} />
+        ))}
+      </RNPicker>
+      <Autocomplete
+        data={filteredCountries}
+        defaultValue={recipe.cuisine}
+        onChangeText={(text) => {
+          setQuery(text);
+          setRecipe({ ...recipe, cuisine: text });
+        }}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => setRecipe({ ...recipe, cuisine: item })}>
+            <Text style={styles.itemText}>{item}</Text>
+          </TouchableOpacity>
+        )}
+        placeholder="Country"
+        inputContainerStyle={styles.autocompleteContainer}
+        listContainerStyle={styles.listContainer}
       />
       <TextInput
         style={styles.input}
@@ -123,6 +154,13 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
         value={recipe.instructions}
         onChangeText={(text) => setRecipe({ ...recipe, instructions: text })}
         placeholder="Instructions"
+        placeholderTextColor="#888"
+      />
+      <TextInput
+        style={styles.input}
+        value={recipe.description}
+        onChangeText={(text) => setRecipe({ ...recipe, description: text })}
+        placeholder="Description"
         placeholderTextColor="#888"
       />
       <TextInput
@@ -156,12 +194,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
-    color: '#000',  // Темний колір тексту
+    color: '#000',
   },
   picker: {
     height: 50,
     width: '100%',
     marginBottom: 10,
+  },
+  autocompleteContainer: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  listContainer: {
+    maxHeight: 150,
+  },
+  itemText: {
+    padding: 10,
+    fontSize: 16,
   },
 });
 
