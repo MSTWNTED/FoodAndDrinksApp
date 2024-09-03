@@ -194,18 +194,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
-    color: '#000',
+    color: '#000', // Чорний колір тексту
   },
   picker: {
     height: 50,
     width: '100%',
     marginBottom: 10,
+    color: '#000', // Чорний колір тексту для Picker
   },
   autocompleteContainer: {
     borderColor: '#ccc',
     borderWidth: 1,
     paddingHorizontal: 10,
     marginBottom: 10,
+    color: '#000', // Чорний колір тексту
   },
   listContainer: {
     maxHeight: 150,
@@ -213,7 +215,9 @@ const styles = StyleSheet.create({
   itemText: {
     padding: 10,
     fontSize: 16,
+    color: '#000', // Чорний колір тексту для випадаючих елементів
   },
 });
+
 
 export default RecipeDetailScreen;

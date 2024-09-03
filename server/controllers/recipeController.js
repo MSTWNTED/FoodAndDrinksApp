@@ -67,15 +67,34 @@ exports.deleteRecipe = async (req, res) => {
     }
 };
 
-// Отримання унікальних країн (кухонь)
-// Отримання унікальних країн (кухонь) за типом (їжа або напій)
-exports.getUniqueCuisinesByType = async (req, res) => {
+// Отримання всіх унікальних країн (кухонь) без фільтрації за типом
+exports.getAllUniqueCuisines = async (req, res) => {
     try {
-        const { type } = req.query;
+        const cuisines = await Recipe.distinct('cuisine');
+        res.json(cuisines);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Отримання унікальних країн (кухонь) за типом та континентом
+exports.getUniqueCuisinesByTypeAndContinent = async (req, res) => {
+    try {
+        const { type, continent } = req.query;
+
+        // Валідація параметра type
         if (!type || (type !== 'food' && type !== 'drink')) {
             return res.status(400).json({ error: 'Invalid type parameter' });
         }
-        const cuisines = await Recipe.distinct('cuisine', { type });
+
+        let query = { type };
+
+        // Додаємо фільтрацію за континентом, якщо параметр переданий
+        if (continent) {
+            query.continent = continent;
+        }
+
+        const cuisines = await Recipe.distinct('cuisine', query);
         res.json(cuisines);
     } catch (err) {
         res.status(500).json({ error: err.message });
