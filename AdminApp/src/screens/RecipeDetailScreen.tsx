@@ -74,7 +74,7 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
               ? fetchedRecipe.ingredients.join(', ')
               : fetchedRecipe.ingredients || '',
           });
-          setQuery(fetchedRecipe.cuisine); // Set query to the fetched cuisine
+          setQuery(fetchedRecipe.cuisine || ''); // Set query to the fetched cuisine or an empty string
           setLoading(false);
         })
         .catch(_error => {
@@ -98,29 +98,20 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
   const handleSave = () => {
     const missingFields = [];
 
+    // Ensure recipe.cuisine is always set to the query value if not already
+    const finalCuisine = query.trim() || recipe.cuisine;
+
     if (!recipe.name) {
       missingFields.push('Name');
     }
-    if (!recipe.continent) {
-      missingFields.push('Continent');
-    }
-    if (!query) {
-      missingFields.push('Country (Cuisine)');
-    }
-    if (!recipe.ingredients) {
-      missingFields.push('Ingredients');
-    }
-    if (!recipe.instructions) {
-      missingFields.push('Instructions');
-    }
-    if (!recipe.description) {
-      missingFields.push('Description');
-    }
-    if (!recipe.imageUrl) {
-      missingFields.push('Image URL');
+    if (!finalCuisine) {
+      missingFields.push('Cuisine');
     }
     if (!recipe.type) {
       missingFields.push('Type');
+    }
+    if (!recipe.continent) {
+      missingFields.push('Continent');
     }
 
     if (missingFields.length > 0) {
@@ -131,20 +122,15 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
       return;
     }
 
-    const newCountry = query.trim();
-
-    if (newCountry && !countries.includes(newCountry)) {
-      setCountries([...countries, newCountry]); // Оновлюємо список країн, якщо країна нова
-    }
-
-    // Переконаємось, що cuisine отримує значення query (країна/кухня)
+    // Update recipe with final values
     const updatedRecipe = {
       ...recipe,
-      cuisine: newCountry || recipe.cuisine, // Використовуємо нову країну або збережену
+      cuisine: finalCuisine,
       ingredients:
         typeof recipe.ingredients === 'string'
           ? recipe.ingredients.split(',').map(ingredient => ingredient.trim())
           : recipe.ingredients,
+      instructions: recipe.instructions || '', // Ensure instructions field is not undefined
     };
 
     if (!recipeId) {
@@ -212,28 +198,28 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
         style={styles.input}
         value={recipe.ingredients}
         onChangeText={text => setRecipe({...recipe, ingredients: text})}
-        placeholder="Ingredients"
+        placeholder="Ingredients (Optional)"
         placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.instructions}
         onChangeText={text => setRecipe({...recipe, instructions: text})}
-        placeholder="Instructions"
+        placeholder="Instructions (Optional)"
         placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.description}
         onChangeText={text => setRecipe({...recipe, description: text})}
-        placeholder="Description"
+        placeholder="Description (Optional)"
         placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.imageUrl}
         onChangeText={text => setRecipe({...recipe, imageUrl: text})}
-        placeholder="Image URL"
+        placeholder="Image URL (Optional)"
         placeholderTextColor="#888"
       />
       <RNPicker
