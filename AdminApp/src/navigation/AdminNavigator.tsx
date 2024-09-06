@@ -1,17 +1,19 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import {createStackNavigator} from '@react-navigation/stack';
 import RecipeListScreen from '../screens/RecipeListScreen';
-import RecipeDetailScreen, { RecipeDetailScreenProps } from '../screens/RecipeDetailScreen';
+import RecipeDetailScreen, {
+  RecipeDetailScreenProps,
+} from '../screens/RecipeDetailScreen';
 
 type AdminStackParamList = {
   RecipeList: undefined;
-  RecipeDetail: { recipeId: string | null };
+  RecipeDetail: {recipeId: string | null};
 };
 
 const Stack = createStackNavigator<AdminStackParamList>();
 
 // Винесений компонент RecipeDetailWrapper за межі AdminNavigator
-const RecipeDetailWrapper: React.FC<RecipeDetailScreenProps> = (props) => {
+const RecipeDetailWrapper: React.FC<RecipeDetailScreenProps> = props => {
   return <RecipeDetailScreen {...props} />;
 };
 

@@ -7,6 +7,7 @@ router.post('/', recipeController.createRecipe);
 router.get('/', recipeController.getRecipes);
 router.get('/cuisines', recipeController.getAllUniqueCuisines); // Отримання всіх країн (кухонь)
 router.get('/cuisines/filter', recipeController.getUniqueCuisinesByTypeAndContinent); // Отримання країн за типом та континентом
+router.get('/continents', recipeController.getAllUniqueContinents); // Новий маршрут для континентів
 router.get('/:id', recipeController.getRecipeById);
 router.put('/:id', recipeController.updateRecipe);
 router.delete('/:id', recipeController.deleteRecipe);

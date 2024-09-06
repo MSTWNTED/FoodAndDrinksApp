@@ -1,21 +1,31 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import {RouteProp} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 type RootStackParamList = {
-  RecipeDetail: { recipe: Recipe };
+  RecipeDetail: {recipe: Recipe};
 };
 
 type RecipeDetailRouteProp = RouteProp<RootStackParamList, 'RecipeDetail'>;
-type RecipeDetailNavigationProp = StackNavigationProp<RootStackParamList, 'RecipeDetail'>;
+type RecipeDetailNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'RecipeDetail'
+>;
 
 interface Recipe {
   name: string;
   cuisine: string;
   ingredients: string[];
   instructions: string;
-  imageUrl: string;  // URL до зображення рецепту
+  imageUrl: string; // URL до зображення рецепту
 }
 
 interface RecipeDetailProps {
@@ -23,8 +33,8 @@ interface RecipeDetailProps {
   navigation: RecipeDetailNavigationProp;
 }
 
-const RecipeDetailScreen: React.FC<RecipeDetailProps> = ({ route }) => {
-  const { recipe } = route.params;
+const RecipeDetailScreen: React.FC<RecipeDetailProps> = ({route}) => {
+  const {recipe} = route.params;
   const [showIngredients, setShowIngredients] = React.useState(false);
   const [showInstructions, setShowInstructions] = React.useState(false);
 
@@ -32,14 +42,14 @@ const RecipeDetailScreen: React.FC<RecipeDetailProps> = ({ route }) => {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{recipe.name}</Text>
       <Text style={styles.subtitle}>{recipe.cuisine}</Text>
-      
+
       {/* Додаємо зображення рецепту */}
-      <Image 
-        source={{ uri: recipe.imageUrl }} 
-        style={styles.image} 
-        resizeMode="cover" 
+      <Image
+        source={{uri: recipe.imageUrl}}
+        style={styles.image}
+        resizeMode="cover"
       />
-      
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Ingredients</Text>
         <TouchableOpacity onPress={() => setShowIngredients(!showIngredients)}>
@@ -50,14 +60,17 @@ const RecipeDetailScreen: React.FC<RecipeDetailProps> = ({ route }) => {
         {showIngredients && (
           <View style={styles.content}>
             {recipe.ingredients.map((ingredient, index) => (
-              <Text key={index} style={styles.text}>{ingredient}</Text>
+              <Text key={index} style={styles.text}>
+                {ingredient}
+              </Text>
             ))}
           </View>
         )}
       </View>
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Instructions</Text>
-        <TouchableOpacity onPress={() => setShowInstructions(!showInstructions)}>
+        <TouchableOpacity
+          onPress={() => setShowInstructions(!showInstructions)}>
           <Text style={styles.toggleButton}>
             {showInstructions ? 'Hide' : 'Show'} Instructions
           </Text>

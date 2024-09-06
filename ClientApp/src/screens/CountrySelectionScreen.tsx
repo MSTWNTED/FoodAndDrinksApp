@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Alert, TextInput, Text, TouchableOpacity } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import axios from 'axios';
 
-const CountrySelectionScreen = ({ route, navigation }: any) => {
-  const { type } = route.params;
+const CountrySelectionScreen = ({route, navigation}: any) => {
+  const {type, continent} = route.params; // Отримуємо тип та континент
   const [countries, setCountries] = useState<string[]>([]);
   const [filteredCountries, setFilteredCountries] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Отримання унікальних країн на основі типу (їжа або напій)
-    axios.get(`https://foodanddrinksapp.onrender.com/api/recipes/cuisines?type=${type}`)
+    // Отримуємо країни на основі обраного континенту та типу (food або drink)
+    axios
+      .get(
+        `https://foodanddrinksapp.onrender.com/api/recipes/countries?type=${type}&continent=${continent}`,
+      )
       .then(response => {
         setCountries(response.data);
         setFilteredCountries(response.data); // Ініціалізуємо відфільтрований список
@@ -22,14 +34,14 @@ const CountrySelectionScreen = ({ route, navigation }: any) => {
         setLoading(false);
         Alert.alert('Error', 'Failed to fetch countries');
       });
-  }, [type]);
+  }, [type, continent]);
 
   useEffect(() => {
     // Фільтруємо країни на основі запиту пошуку
     setFilteredCountries(
       countries.filter(country =>
-        country.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+        country.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
     );
   }, [searchQuery, countries]);
 
@@ -47,12 +59,13 @@ const CountrySelectionScreen = ({ route, navigation }: any) => {
       />
       <FlatList
         data={filteredCountries}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
+        keyExtractor={item => item}
+        renderItem={({item}) => (
           <TouchableOpacity
             style={styles.countryCard}
-            onPress={() => navigation.navigate('RecipeList', { type, country: item })}
-          >
+            onPress={() =>
+              navigation.navigate('RecipeList', {type, country: item})
+            }>
             <Text style={styles.countryText}>{item}</Text>
           </TouchableOpacity>
         )}

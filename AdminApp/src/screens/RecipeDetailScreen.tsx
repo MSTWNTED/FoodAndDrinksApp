@@ -1,32 +1,56 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Button, ActivityIndicator, Alert, FlatList, TouchableOpacity, Text } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import {
+  View,
+  StyleSheet,
+  TextInput,
+  Button,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp} from '@react-navigation/native';
 import axios from 'axios';
-import { Picker as RNPicker } from '@react-native-picker/picker';
-import Autocomplete from 'react-native-autocomplete-input';
+import {Picker as RNPicker} from '@react-native-picker/picker';
 
 type AdminStackParamList = {
   RecipeList: undefined;
-  RecipeDetail: { recipeId: string | null };
+  RecipeDetail: {recipeId: string | null};
 };
 
-type RecipeDetailScreenNavigationProp = StackNavigationProp<AdminStackParamList, 'RecipeDetail'>;
-type RecipeDetailScreenRouteProp = RouteProp<AdminStackParamList, 'RecipeDetail'>;
+type RecipeDetailScreenNavigationProp = StackNavigationProp<
+  AdminStackParamList,
+  'RecipeDetail'
+>;
+type RecipeDetailScreenRouteProp = RouteProp<
+  AdminStackParamList,
+  'RecipeDetail'
+>;
 
 export type RecipeDetailScreenProps = {
   route: RecipeDetailScreenRouteProp;
   navigation: RecipeDetailScreenNavigationProp;
 };
 
-const continents = ['Africa', 'Asia', 'Europe', 'North America', 'South America', 'Australia', 'Antarctica'];
+const continents = [
+  'Africa',
+  'Asia',
+  'Europe',
+  'North America',
+  'South America',
+  'Australia',
+  'Antarctica',
+];
+const productTypes = ['food', 'drink'];
 
-const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigation }) => {
-  const { recipeId } = route.params;
+const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({
+  route,
+  navigation,
+}) => {
+  const {recipeId} = route.params;
   const [recipe, setRecipe] = React.useState({
     _id: '',
     name: '',
-    continent: 'Europe',  // Значення за замовчуванням
+    continent: 'Europe',
     cuisine: '',
     ingredients: '',
     instructions: '',
@@ -40,7 +64,8 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
 
   React.useEffect(() => {
     if (recipeId) {
-      axios.get(`https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`)
+      axios
+        .get(`https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`)
         .then(response => {
           const fetchedRecipe = response.data;
           setRecipe({
@@ -49,6 +74,7 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
               ? fetchedRecipe.ingredients.join(', ')
               : fetchedRecipe.ingredients || '',
           });
+          setQuery(fetchedRecipe.cuisine); // Set query to the fetched cuisine
           setLoading(false);
         })
         .catch(_error => {
@@ -59,7 +85,8 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
   }, [recipeId]);
 
   React.useEffect(() => {
-    axios.get('https://foodanddrinksapp.onrender.com/api/recipes/cuisines')
+    axios
+      .get('https://foodanddrinksapp.onrender.com/api/recipes/cuisines')
       .then(response => {
         setCountries(response.data);
       })
@@ -69,16 +96,55 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
   }, []);
 
   const handleSave = () => {
-    if (!recipe.name || !recipe.continent || !recipe.cuisine || !recipe.ingredients || !recipe.instructions || !recipe.type || !recipe.imageUrl) {
-      Alert.alert('Error', 'Please fill out all required fields');
+    const missingFields = [];
+
+    if (!recipe.name) {
+      missingFields.push('Name');
+    }
+    if (!recipe.continent) {
+      missingFields.push('Continent');
+    }
+    if (!query) {
+      missingFields.push('Country (Cuisine)');
+    }
+    if (!recipe.ingredients) {
+      missingFields.push('Ingredients');
+    }
+    if (!recipe.instructions) {
+      missingFields.push('Instructions');
+    }
+    if (!recipe.description) {
+      missingFields.push('Description');
+    }
+    if (!recipe.imageUrl) {
+      missingFields.push('Image URL');
+    }
+    if (!recipe.type) {
+      missingFields.push('Type');
+    }
+
+    if (missingFields.length > 0) {
+      Alert.alert(
+        'Error',
+        `Please fill out the following fields: ${missingFields.join(', ')}`,
+      );
       return;
     }
 
+    const newCountry = query.trim();
+
+    if (newCountry && !countries.includes(newCountry)) {
+      setCountries([...countries, newCountry]); // Оновлюємо список країн, якщо країна нова
+    }
+
+    // Переконаємось, що cuisine отримує значення query (країна/кухня)
     const updatedRecipe = {
       ...recipe,
-      ingredients: typeof recipe.ingredients === 'string'
-        ? recipe.ingredients.split(',').map(ingredient => ingredient.trim())
-        : recipe.ingredients,
+      cuisine: newCountry || recipe.cuisine, // Використовуємо нову країну або збережену
+      ingredients:
+        typeof recipe.ingredients === 'string'
+          ? recipe.ingredients.split(',').map(ingredient => ingredient.trim())
+          : recipe.ingredients,
     };
 
     if (!recipeId) {
@@ -86,23 +152,31 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
     }
 
     const apiCall = recipeId
-      ? axios.put(`https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`, updatedRecipe)
-      : axios.post('https://foodanddrinksapp.onrender.com/api/recipes', updatedRecipe);
+      ? axios.put(
+          `https://foodanddrinksapp.onrender.com/api/recipes/${recipeId}`,
+          updatedRecipe,
+        )
+      : axios.post(
+          'https://foodanddrinksapp.onrender.com/api/recipes',
+          updatedRecipe,
+        );
 
     apiCall
       .then(_response => {
-        Alert.alert('Success', `Recipe ${recipeId ? 'updated' : 'added'} successfully`);
+        Alert.alert(
+          'Success',
+          `Recipe ${recipeId ? 'updated' : 'added'} successfully`,
+        );
         navigation.navigate('RecipeList');
       })
       .catch(error => {
-        console.error(`Failed to ${recipeId ? 'update' : 'add'} recipe:`, error.response?.data || error.message);
+        console.error(
+          `Failed to ${recipeId ? 'update' : 'add'} recipe:`,
+          error.response?.data || error.message,
+        );
         Alert.alert('Error', `Failed to ${recipeId ? 'update' : 'add'} recipe`);
       });
   };
-
-  const filteredCountries = query === ''
-    ? []
-    : countries.filter(country => country.toLowerCase().includes(query.toLowerCase()));
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -113,70 +187,66 @@ const RecipeDetailScreen: React.FC<RecipeDetailScreenProps> = ({ route, navigati
       <TextInput
         style={styles.input}
         value={recipe.name}
-        onChangeText={(text) => setRecipe({ ...recipe, name: text })}
+        onChangeText={text => setRecipe({...recipe, name: text})}
         placeholder="Recipe Name"
         placeholderTextColor="#888"
       />
       <RNPicker
         selectedValue={recipe.continent}
         style={styles.picker}
-        onValueChange={(itemValue) => setRecipe({ ...recipe, continent: itemValue })}
-      >
+        onValueChange={itemValue =>
+          setRecipe({...recipe, continent: itemValue})
+        }>
         {continents.map(continent => (
           <RNPicker.Item key={continent} label={continent} value={continent} />
         ))}
       </RNPicker>
-      <Autocomplete
-        data={filteredCountries}
-        defaultValue={recipe.cuisine}
-        onChangeText={(text) => {
-          setQuery(text);
-          setRecipe({ ...recipe, cuisine: text });
-        }}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => setRecipe({ ...recipe, cuisine: item })}>
-            <Text style={styles.itemText}>{item}</Text>
-          </TouchableOpacity>
-        )}
-        placeholder="Country"
-        inputContainerStyle={styles.autocompleteContainer}
-        listContainerStyle={styles.listContainer}
+      <TextInput
+        style={styles.input}
+        value={query}
+        onChangeText={text => setQuery(text)}
+        placeholder="Country (Cuisine)"
+        placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
-        value={Array.isArray(recipe.ingredients) ? recipe.ingredients.join(', ') : recipe.ingredients}
-        onChangeText={(text) => setRecipe({ ...recipe, ingredients: text })}
+        value={recipe.ingredients}
+        onChangeText={text => setRecipe({...recipe, ingredients: text})}
         placeholder="Ingredients"
         placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.instructions}
-        onChangeText={(text) => setRecipe({ ...recipe, instructions: text })}
+        onChangeText={text => setRecipe({...recipe, instructions: text})}
         placeholder="Instructions"
         placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.description}
-        onChangeText={(text) => setRecipe({ ...recipe, description: text })}
+        onChangeText={text => setRecipe({...recipe, description: text})}
         placeholder="Description"
         placeholderTextColor="#888"
       />
       <TextInput
         style={styles.input}
         value={recipe.imageUrl}
-        onChangeText={(text) => setRecipe({ ...recipe, imageUrl: text })}
+        onChangeText={text => setRecipe({...recipe, imageUrl: text})}
         placeholder="Image URL"
         placeholderTextColor="#888"
       />
       <RNPicker
         selectedValue={recipe.type}
         style={styles.picker}
-        onValueChange={(itemValue) => setRecipe({ ...recipe, type: itemValue })}
-      >
-        <RNPicker.Item label="Food" value="food" />
-        <RNPicker.Item label="Drink" value="drink" />
+        onValueChange={itemValue => setRecipe({...recipe, type: itemValue})}>
+        {productTypes.map(type => (
+          <RNPicker.Item
+            key={type}
+            label={type.charAt(0).toUpperCase() + type.slice(1)}
+            value={type}
+          />
+        ))}
       </RNPicker>
       <Button title="Save Recipe" onPress={handleSave} />
     </View>
@@ -200,24 +270,8 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     marginBottom: 10,
-    color: '#000', // Чорний колір тексту для Picker
-  },
-  autocompleteContainer: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    color: '#000', // Чорний колір тексту
-  },
-  listContainer: {
-    maxHeight: 150,
-  },
-  itemText: {
-    padding: 10,
-    fontSize: 16,
-    color: '#000', // Чорний колір тексту для випадаючих елементів
+    color: '#000',
   },
 });
-
 
 export default RecipeDetailScreen;

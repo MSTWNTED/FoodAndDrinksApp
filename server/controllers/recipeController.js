@@ -100,3 +100,13 @@ exports.getUniqueCuisinesByTypeAndContinent = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Отримання всіх унікальних континентів
+exports.getAllUniqueContinents = async (req, res) => {
+    try {
+        const continents = await Recipe.distinct('continent');
+        res.json(continents);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

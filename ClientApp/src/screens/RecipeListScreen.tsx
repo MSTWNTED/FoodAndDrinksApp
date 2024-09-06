@@ -1,16 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert, TextInput } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+} from 'react-native';
 import axios from 'axios';
 
-const RecipeListScreen = ({ route, navigation }: any) => {
-  const { type, country } = route.params;
+const RecipeListScreen = ({route, navigation}: any) => {
+  const {type, country} = route.params;
   const [recipes, setRecipes] = useState<any[]>([]);
   const [filteredRecipes, setFilteredRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    axios.get(`https://foodanddrinksapp.onrender.com/api/recipes?type=${type}&country=${country}`)
+    axios
+      .get(
+        `https://foodanddrinksapp.onrender.com/api/recipes?type=${type}&country=${country}`,
+      )
       .then(response => {
         setRecipes(response.data);
         setFilteredRecipes(response.data); // Ініціалізуємо відфільтрований список
@@ -27,8 +39,8 @@ const RecipeListScreen = ({ route, navigation }: any) => {
     // Фільтруємо рецепти на основі запиту пошуку
     setFilteredRecipes(
       recipes.filter(recipe =>
-        recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+        recipe.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
     );
   }, [searchQuery, recipes]);
 
@@ -46,12 +58,15 @@ const RecipeListScreen = ({ route, navigation }: any) => {
       />
       <FlatList
         data={filteredRecipes}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
+        keyExtractor={item => item._id}
+        renderItem={({item}) => (
           <View style={styles.recipeCard}>
             <Text style={styles.recipeName}>{item.name}</Text>
             <Text style={styles.cuisineName}>{item.cuisine}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('RecipeDetail', { recipe: item })}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('RecipeDetail', {recipe: item})
+              }>
               <Text style={styles.viewDetails}>View Details</Text>
             </TouchableOpacity>
           </View>
