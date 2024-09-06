@@ -12,17 +12,17 @@ import {
 import axios from 'axios';
 
 const CountrySelectionScreen = ({route, navigation}: any) => {
-  const {type, continent} = route.params; // Отримуємо тип та континент
+  const {type, continent} = route.params;
   const [countries, setCountries] = useState<string[]>([]);
   const [filteredCountries, setFilteredCountries] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Отримуємо країни на основі обраного континенту та типу (food або drink)
+    // Отримання унікальних країн на основі типу та континенту
     axios
       .get(
-        `https://foodanddrinksapp.onrender.com/api/recipes/countries?type=${type}&continent=${continent}`,
+        `https://foodanddrinksapp.onrender.com/api/recipes/cuisines/type-continent?type=${type}&continent=${continent}`,
       )
       .then(response => {
         setCountries(response.data);

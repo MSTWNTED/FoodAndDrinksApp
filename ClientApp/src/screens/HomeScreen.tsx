@@ -2,18 +2,20 @@ import React from 'react';
 import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 
 const HomeScreen = ({navigation}: any) => {
+  const navigateToContinentSelection = (type: string) => {
+    navigation.navigate('ContinentSelection', {type});
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={[styles.button, styles.leftButton]}
-        onPress={() => navigation.navigate('CountrySelection', {type: 'food'})}>
+        onPress={() => navigateToContinentSelection('food')}>
         <Text style={styles.buttonText}>Food</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button, styles.rightButton]}
-        onPress={() =>
-          navigation.navigate('CountrySelection', {type: 'drink'})
-        }>
+        onPress={() => navigateToContinentSelection('drink')}>
         <Text style={styles.buttonText}>Drink</Text>
       </TouchableOpacity>
     </View>

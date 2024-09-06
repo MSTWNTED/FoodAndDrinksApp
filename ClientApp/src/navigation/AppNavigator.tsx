@@ -2,7 +2,7 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from '../screens/HomeScreen';
-import ContinentSelectionScreen from '../screens/ContinentSelectionScreen'; // Імпортуємо новий екран
+import ContinentSelectionScreen from '../screens/ContinentSelectionScreen';
 import CountrySelectionScreen from '../screens/CountrySelectionScreen';
 import RecipeListScreen from '../screens/RecipeListScreen';
 import RecipeDetailScreen from '../screens/RecipeDetailScreen';
@@ -26,8 +26,7 @@ const AppNavigator = () => {
         <Stack.Screen
           name="ContinentSelection"
           component={ContinentSelectionScreen}
-        />{' '}
-        {/* Додаємо екран */}
+        />
         <Stack.Screen
           name="CountrySelection"
           component={CountrySelectionScreen}

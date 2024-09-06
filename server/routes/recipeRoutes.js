@@ -6,8 +6,8 @@ const recipeController = require('../controllers/recipeController');
 router.post('/', recipeController.createRecipe);
 router.get('/', recipeController.getRecipes);
 router.get('/cuisines', recipeController.getAllUniqueCuisines); // Отримання всіх країн (кухонь)
-router.get('/cuisines/filter', recipeController.getUniqueCuisinesByTypeAndContinent); // Отримання країн за типом та континентом
-router.get('/continents', recipeController.getAllUniqueContinents); // Новий маршрут для континентів
+router.get('/cuisines/type-continent', recipeController.getCuisinesByTypeAndContinent); // Отримання країн по типу і континенту
+router.get('/continents/type', recipeController.getContinentsByType); // Отримання континентів по типу
 router.get('/:id', recipeController.getRecipeById);
 router.put('/:id', recipeController.updateRecipe);
 router.delete('/:id', recipeController.deleteRecipe);
